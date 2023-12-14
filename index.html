@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" id="theme" href="assets/css/styles.css"/>
+    <title>Весы</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<canvas id="canvas1"></canvas>
+<div class="authorization">
+    <h1>Определи вес</h1>
+    <label for="name">
+        <input type="text" class="text" placeholder="Введи свое имя" id="name">
+    </label>
+    <a href="pages/levels.html" id="startLink">
+        <input type="button" class="button" value="Начать игру" id="startButton" disabled>
+    </a>
+</div>
+
+<script src="assets/js/menu.js"></script>
+</body>
+</html>
