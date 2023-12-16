@@ -87,6 +87,23 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
+#recordList {
+    max-height: 50vh;
+    min-width: 40vh;
+    color: black;
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    overflow: auto;
+}
+
 #gameOverScreen h1 {
     color: black;
 }
@@ -106,4 +123,29 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+#recordList {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+}
+
+#usersRecords {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#usersRecords li {
+    background-color: #333;
+    color: white;
+    padding: 5px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+#usersRecords li:hover {
+    background-color: #555;
 }

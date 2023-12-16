@@ -11,8 +11,6 @@ cvs.height = window.innerHeight * 997 / 1000;
 // задаем весы
 const support = new Image();
 support.src = "../assets/img/support.png";
-const table = new Image();
-table.src = "../assets/img/table.png"
 const arm = new Image();
 arm.src = "../assets/img/arm.png";
 const left_scale = new Image();
@@ -20,17 +18,11 @@ left_scale.src = "../assets/img/left.png";
 const right_scale = new Image();
 right_scale.src = "../assets/img/right.png";
 
-let currentLevel = localStorage.getItem('current_level');
-let pageTitle = document.getElementById('pageTitle');
-let levelPanel = document.getElementById('level');
-
 let rect = [];
 let leftWeight = [-2, -2, -2];
 let rightWeight = [-2, -2, -2];
-let tableWeight = [-2, -2];
 let armAngle = 0;
-let rectFromTable = false;
-let seconds = Math.floor(30 / currentLevel);
+let seconds = 20;
 let selectedNumber = null;
 let numbers = getNumbers();
 let counter = 0;
@@ -40,24 +32,6 @@ let mouse = {
   y: 0,
   down: false
 };
-
-// настройки уровня
-pageTitle.textContent = 'Уровень ' + currentLevel;
-levelPanel.textContent = '№' + currentLevel;
-
-let nextButton = document.getElementById('nextLink');
-let resultButton = document.getElementById('resultsLink');
-if (parseInt(currentLevel) > 2) {
-  resultButton.style.display = 'inline-block';
-  nextButton.style.display = 'none';
-} else {
-  nextButton.style.display = 'inline-block';
-  resultButton.style.display = 'none';
-}
-
-nextButton.addEventListener('click', function() {
-  localStorage.setItem('current_level', (parseInt(currentLevel) + 1).toString());
-});
 
 function arraySum(array) {
   let sum = 0;
@@ -190,28 +164,7 @@ function drawArm() {
   }
   ctx.restore();
   ctx.drawImage(support, 2 * cvs.width / 3 - support.width / 2, cvs.height - support.height);
-  ctx.drawImage(table, 3 / 5 * cvs.width + 10, cvs.height - support.height / 2);
-  for (i = 0; i < 2; i++) {
-    if (tableWeight[i] > -1) {
-      ctx.drawImage(numbers[tableWeight[i]], 3 / 5 * cvs.width + 55 / 100 * table.width * i, cvs.height - support.height / 2);
-    }
-  }
 }
-
-function isCursorInTable() {
-  if (mouse.y > cvs.height - support.height) {
-    if (mouse.x > 3 / 5 * cvs.width && mouse.x < 3 / 5 * cvs.width + 1 / 2 * table.width) {
-      rectFromTable = true;
-      selectedNumber = new Rect(3 / 5 * cvs.width + 1 / 2 * table.width, cvs.height - 1 / 2 * support.height, tableWeight[0]);
-      tableWeight[0] = -2;
-    } else if (mouse.x > 3 / 5 * cvs.width + 1 / 2 * table.width && mouse.x < 3 / 5 * cvs.width + table.width) {
-      rectFromTable = true;
-      selectedNumber = new Rect(3 / 5 * cvs.width + 1 / 2 * table.width, cvs.height - 1 / 2 * support.height, tableWeight[1]);
-      tableWeight[1] = -2;
-    }
-  }
-}
-
 
 function rendering() {
 
@@ -221,11 +174,9 @@ function rendering() {
   ctx.fillRect(0, 0, cvs.width / 3, cvs.height);
 
   drawArm();
-  if (rectFromTable) {
-    selectedNumber.draw();
-  }
+
   rect[counter].draw();
-  let speed = currentLevel * 2;
+  let speed = 3;
   rect[counter].update(0, speed);
   if (rect[counter].returnY() >= cvs.height) {
     counter++;
@@ -261,12 +212,13 @@ function showGameOverScreen() {
     score = scoreLeft;
   }
   gameOver = true;
-  localStorage.setItem('score_level_' + currentLevel, score.toString());
+
+  localStorage.setItem('level_2', score.toString());
+
   document.getElementById('score').textContent = score.toString();
   let nextLevel = document.getElementById('nextButton');
   if (score === 0) {
     nextLevel.style.display = 'none';
-    resultButton.style.display = 'none';
   } else {
     nextLevel.style.display = 'inline-block';
   }
@@ -277,13 +229,7 @@ document.querySelector('.button[value="Заново"]').addEventListener('click'
   window.location.href = this.getAttribute('data-href');
 });
 
-document.querySelector('.button[value="Следующий уровень"]').addEventListener('click', function () {
-  window.location.href = this.getAttribute('data-href');
-});
-
-
 updateTimer();
-
 
 //отрисовка падающих цифр
 for (let i = 0; i < seconds * 10; i++) {
@@ -306,9 +252,6 @@ window.onmousedown = function () {
     return;
   }
   mouse.down = true;
-  if (tableWeight[0] !== -2 || tableWeight[1] !== -2) {
-    isCursorInTable();
-  }
   if (selectedNumber === null) {
     for (let i in rect) {
       if (isCursorInRect(rect[i])) {
@@ -320,45 +263,25 @@ window.onmousedown = function () {
 
 // При отпускании мыши
 window.onmouseup = function () {
-  if (rectFromTable) {
-    if (isInLeftScale()) {
-      if (leftWeight.indexOf(-2) !== -1) {
-        leftWeight[leftWeight.indexOf(-2)] = selectedNumber.returnNumber();
-        armAngle = 40 * (arraySum(rightWeight) - arraySum(leftWeight)) / maxWeight(arraySum(rightWeight), arraySum(leftWeight));
-      }
-    } else if (isInRightScale()) {
-      if (rightWeight.indexOf(-2) !== -1) {
-        rightWeight[rightWeight.indexOf(-2)] = selectedNumber.returnNumber();
-        armAngle = 40 * (arraySum(rightWeight) - arraySum(leftWeight)) / maxWeight(arraySum(rightWeight), arraySum(leftWeight));
-      }
-    } else {
-      return;
+  if (isInLeftScale()) {
+    if (leftWeight.indexOf(-2) !== -1) {
+      leftWeight[leftWeight.indexOf(-2)] = rect[counter].returnNumber();
+      armAngle = 40 * (arraySum(rightWeight) - arraySum(leftWeight)) / maxWeight(arraySum(rightWeight), arraySum(leftWeight));
     }
-  } else {
-    if (selectedNumber !== null && mouse.x > 3 / 5 * cvs.width && mouse.x < 3 / 5 * cvs.width + table.width
-      && mouse.y > cvs.height - support.height && tableWeight.indexOf(-2) !== -1) {
-      tableWeight[tableWeight.indexOf(-2)] = rect[counter].returnNumber();
-      counter++;
-    }
-    if (isInLeftScale()) {
-      if (leftWeight.indexOf(-2) !== -1) {
-        leftWeight[leftWeight.indexOf(-2)] = rect[counter].returnNumber();
-        armAngle = 40 * (arraySum(rightWeight) - arraySum(leftWeight)) / maxWeight(arraySum(rightWeight), arraySum(leftWeight));
-      }
-      counter++;
-    }
-    if (isInRightScale()) {
-      if (rightWeight.indexOf(-2) !== -1) {
-        rightWeight[rightWeight.indexOf(-2)] = rect[counter].returnNumber();
-        armAngle = 40 * (arraySum(rightWeight) - arraySum(leftWeight)) / maxWeight(arraySum(rightWeight), arraySum(leftWeight));
-      }
-      counter++;
-    }
+    counter++;
   }
-  rectFromTable = false;
+  if (isInRightScale()) {
+    if (rightWeight.indexOf(-2) !== -1) {
+      rightWeight[rightWeight.indexOf(-2)] = rect[counter].returnNumber();
+      armAngle = 40 * (arraySum(rightWeight) - arraySum(leftWeight)) / maxWeight(arraySum(rightWeight), arraySum(leftWeight));
+    }
+    counter++;
+  }
   mouse.down = false;
   selectedNumber = null;
-  if (rightWeight.indexOf(-2) === -1 && leftWeight.indexOf(-2) === -1) {
+  if (rightWeight.indexOf(-2) === -1 && arraySum(leftWeight) === arraySum(rightWeight)
+    || leftWeight.indexOf(-2) === -1 && arraySum(leftWeight) === arraySum(rightWeight)
+    || rightWeight.indexOf(-2) === -1 && leftWeight.indexOf(-2) === -1) {
     seconds = 0;
     updateTimer();
   }
