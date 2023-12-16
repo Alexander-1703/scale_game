@@ -190,7 +190,7 @@ function drawArm() {
   }
   ctx.restore();
   ctx.drawImage(support, 2 * cvs.width / 3 - support.width / 2, cvs.height - support.height);
-  ctx.drawImage(table, 3 / 5 * cvs.width, cvs.height - support.height / 2);
+  ctx.drawImage(table, 3 / 5 * cvs.width + 10, cvs.height - support.height / 2);
   for (i = 0; i < 2; i++) {
     if (tableWeight[i] > -1) {
       ctx.drawImage(numbers[tableWeight[i]], 3 / 5 * cvs.width + 55 / 100 * table.width * i, cvs.height - support.height / 2);
